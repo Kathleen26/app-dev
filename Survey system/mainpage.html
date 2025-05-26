@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Surnalysis</title>
+    <style>
+        body {
+            margin: 0px;
+            background-image: linear-gradient(white, rgb(122, 166, 232));
+            background-repeat: no-repeat;
+            background-position: center;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        main {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .Title {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 75%;
+            border-style: solid;
+        }
+        .navbar ul {
+            list-style-type: none;
+            background-color: hsl(198, 87%, 50%);
+            padding: 0px;
+            margin: 0px;
+            overflow: hidden;
+            font-size: 1.2em;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 20px;
+            display: block;
+            text-align: center;
+        }
+        .navbar a:hover {
+            background-color: hsl(209, 86%, 66%);
+        }
+        .navbar li {
+            float: left;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            margin-bottom: 20px;
+            margin-top: 100px;
+        }
+        .container img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 700px;
+            margin-top: 60px;
+        }
+        .button {
+            margin-top: -40px;
+        }
+        .dateTime {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            font-size: 14px;
+            padding: 10px 15px;
+            background: transparent;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            line-height: 1.2;
+        }
+        .dateTime .date {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        .dateTime .time {
+            font-size: 16px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: hsl(198, 87%, 50%);
+            border: none;
+            border-radius: 15px;
+            margin: 10px auto 0 auto;
+            width: 200px;
+        }
+        .btn:hover {
+            background-color: hsl(198, 87%, 50%);
+        }
+        .btn:active {
+            background-color: hsl(198, 87%, 50%);
+            transform: translateY(4px);
+        }
+        @media (max-width: 600px) {
+            .navbar ul {
+                font-size: 1em;
+            }
+            .navbar li {
+                float: none;
+                width: 100%;
+            }
+            .navbar a {
+                padding: 15px;
+            }
+            .container img {
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+                margin-top: 20px;
+            }
+            .container {
+                margin-top: 50px;
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+            main {
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                margin: 10px auto 0 auto;
+                padding: 12px 0;
+                font-size: 18px;
+            }
+            .dateTime {
+                font-size: 14px;
+                padding: 10px;
+                top: 0;
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="Home.php">Home</a></li>
+            <li><a href="About.php">About</a></li>
+            <li><a href="Contact.php">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="dateTime">
+        <div class="date" id="Date"></div>
+        <div class="time" id="Time"></div>
+    </div>
+
+    <div class="container">
+        <img src="Images/SURNALYSIS-removebg-preview.png" alt="Surnalysis" />
+        <div class="button">
+            <a href="index.html" class="btn">Get Started</a>
+        </div>
+    </div>
+
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString(undefined, options);
+            const timeStr = now.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+            document.getElementById('Date').innerHTML = dateStr;
+            document.getElementById('Time').innerHTML = timeStr;
+        }
+
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // initial call
+    </script>
+</body>
+</html>

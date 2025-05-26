@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Map Results</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #ffffff, #7aa6e8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    nav {
+      background-color: hsl(198, 87%, 50%);
+      width: 100%;
+      padding: 10px 20px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .container {
+      margin-top: 100px;
+    }
+
+    .info-box,
+    #map {
+      max-width: 500px;
+      width: 100%;
+      height: 500px;
+      border-radius: 25px;
+      box-sizing: border-box;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: 0.3s;
+    }
+
+    .info-box {
+      order: 1;
+    }
+
+    #map {
+      order: 2;
+    }
+
+    .info-box {
+      background: linear-gradient(to bottom right, #c3e0f7, #a3c9f9);
+      padding: 20px;
+      border: 2px solid #000;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    #barChartContainer {
+      height: 300px;
+      overflow-y: auto;
+    }
+
+    .info-box h2 {
+      font-size: 28px;
+      background: #b7d9f7;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 900;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .info-box p {
+      background-color: rgba(255, 255, 255, 0.3);
+      padding: 15px;
+      border-radius: 15px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .legend {
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 4px;
+    }
+
+    .legend-color.green {
+      background-color: #12c468;
+    }
+
+    .legend-color.red {
+      background-color: #f44336;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .buttons button {
+      background-color: #0ea5e9;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .buttons button:hover {
+      background-color: #0c87cc;
+    }
+
+    #map {
+      border: 2px solid #000;
+    }
+
+    @media (max-width: 1100px) {
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .info-box, #map {
+        max-width: 90%;
+        width: 100%;
+        height: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .buttons {
+        justify-content: center;
+        width: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div id="dateTime" style="flex: 1; text-align: right; font-weight: normal; font-size: 16px; color: white;">
+    <!-- Date and time will be displayed here -->
+  </div>
+</nav>
+
+  <div class="container" style="display: grid; grid-template-columns: 500px 500px; grid-template-rows: 500px auto; gap: 20px;">
+    <div id="map" style="grid-column: 2; grid-row: 1 / span 2;"></div>
+    <div class="info-box" style="grid-column: 1; grid-row: 1;">
+      <div>
+        <h2>MAP RESULTS</h2>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color green"></div><strong>HIGH VOTES</strong>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color red"></div><strong>LOW VOTES</strong>
+          </div>
+        </div>
+        <div id="barChartContainer"></div>
+      </div>
+    </div>
+<div class="buttons" style="grid-column: 2; grid-row: 2; display: flex; justify-content: flex-end; gap: 10px; justify-self: end; width: 500px; margin-top: -10px;">
+  <button onclick="goBack()">BACK</button>
+  <button onclick="goNext()">NEXT</button>
+</div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  function updateDateTime() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateStr = now.toLocaleDateString(undefined, options);
+    const timeStr = now.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+    document.getElementById('dateTime').innerHTML = dateStr + '<br>' + timeStr;
+  }
+
+  setInterval(updateDateTime, 1000);
+  updateDateTime();
+
+  const map = L.map('map').setView([14.6507, 121.1029], 14);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data © OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Barangay coordinates data
+  const barangayCoordinates = {
+    "Barangka": { "lat": 14.6297, "lng": 121.0869 },
+    "Concepcion Dos": { "lat": 14.6470, "lng": 121.1025 },
+    "Concepcion Uno": { "lat": 14.6443, "lng": 121.0998 },
+    "Fortune": { "lat": 14.6505, "lng": 121.1104 },
+    "I.V.C": { "lat": 14.6283, "lng": 121.0893 },
+    "Jesus dela Peña": { "lat": 14.6273, "lng": 121.0888 },
+    "Kalumpang": { "lat": 14.6353, "lng": 121.0803 },
+    "Malanday": { "lat": 14.6553, "lng": 121.1053 },
+    "Marikina Heights": { "lat": 14.6537, "lng": 121.1190 },
+    "Nangka": { "lat": 14.6458, "lng": 121.1008 },
+    "Parang": { "lat": 14.6403, "lng": 121.0953 },
+    "San Roque": { "lat": 14.6303, "lng": 121.0903 },
+    "Sta. Elena": { "lat": 14.6323, "lng": 121.0923 },
+    "Sto. Niño": { "lat": 14.6333, "lng": 121.0933 },
+    "Tañong": { "lat": 14.6288, "lng": 121.0878 },
+    "Tumana": { "lat": 14.6503, "lng": 121.1083 }
+  };
+
+  // Define green and red icons
+  const greenIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
+  const redIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
+  // Simple K-means clustering for 1D data
+  function kMeans1D(data, k, maxIterations = 100) {
+    // Initialize centroids randomly
+    let centroids = [];
+    const usedIndices = new Set();
+    while (centroids.length < k) {
+      const idx = Math.floor(Math.random() * data.length);
+      if (!usedIndices.has(idx)) {
+        centroids.push(data[idx]);
+        usedIndices.add(idx);
+      }
+    }
+
+    let assignments = new Array(data.length).fill(-1);
+    let iterations = 0;
+    let changed = true;
+
+    while (changed && iterations < maxIterations) {
+      changed = false;
+      // Assign points to nearest centroid
+      for (let i = 0; i < data.length; i++) {
+        let minDist = Infinity;
+        let minIndex = -1;
+        for (let j = 0; j < k; j++) {
+          const dist = Math.abs(data[i] - centroids[j]);
+          if (dist < minDist) {
+            minDist = dist;
+            minIndex = j;
+          }
+        }
+        if (assignments[i] !== minIndex) {
+          assignments[i] = minIndex;
+          changed = true;
+        }
+      }
+
+      // Update centroids
+      let sums = Array(k).fill(0);
+      let counts = Array(k).fill(0);
+
+      for (let i = 0; i < data.length; i++) {
+        const cluster = assignments[i];
+        counts[cluster]++;
+        sums[cluster] += data[i];
+      }
+
+      for (let j = 0; j < k; j++) {
+        if (counts[j] === 0) continue;
+        centroids[j] = sums[j] / counts[j];
+      }
+
+      iterations++;
+    }
+
+    return { assignments, centroids };
+  }
+
+  // Load survey data points from localStorage
+  function loadSurveyData() {
+    const rawData = localStorage.getItem('surveyDataPoints');
+    if (!rawData) return [];
+    try {
+      return JSON.parse(rawData);
+    } catch (e) {
+      console.error('Error parsing surveyDataPoints:', e);
+      return [];
+    }
+  }
+
+  // Calculate vote tally percentage per barangay
+  function calculateBarangayPercentages(dataPoints) {
+    const counts = {};
+    const total = dataPoints.length;
+    dataPoints.forEach(dp => {
+      const barangay = dp.registration?.address || 'Unknown';
+      counts[barangay] = (counts[barangay] || 0) + 1;
+    });
+
+    const percentages = {};
+    for (const barangay in counts) {
+      percentages[barangay] = (counts[barangay] / total) * 100;
+    }
+    return percentages;
+  }
+
+  // Calculate average age per barangay
+  function calculateAverageAgePerBarangay(dataPoints) {
+    const ageSums = {};
+    const counts = {};
+
+    dataPoints.forEach(dp => {
+      const barangay = dp.registration?.address || 'Unknown';
+      const age = dp.registration?.age || 0;
+      if (age > 0) {
+        ageSums[barangay] = (ageSums[barangay] || 0) + age;
+        counts[barangay] = (counts[barangay] || 0) + 1;
+      }
+    });
+
+    const averageAges = {};
+    for (const barangay in ageSums) {
+      averageAges[barangay] = ageSums[barangay] / counts[barangay];
+    }
+    return averageAges;
+  }
+
+  // Plot markers on map with color based on average age, with Tanong always green
+  function plotBarangayMarkers(percentages, averageAges, barangays) {
+    for (let i = 0; i < barangays.length; i++) {
+      const barangay = barangays[i];
+      const percent = percentages[barangay] || 0;
+      const avgAge = averageAges[barangay] || 0;
+      const coords = barangayCoordinates[barangay];
+      if (!coords) continue;
+
+      // Determine icon color based on average age, but Tanong is always green
+      let icon;
+      if (barangay.toLowerCase() === 'tañong') {
+        icon = greenIcon; // Tanong always green
+      } else if (avgAge < 25) {
+        icon = redIcon; // younger population - red
+      } else if (avgAge < 40) {
+        icon = new L.Icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+      } else {
+        icon = greenIcon; // older population - green
+      }
+
+      const marker = L.marker([coords.lat, coords.lng], {
+        icon: icon
+      }).addTo(map);
+
+      marker.bindPopup(`${barangay}: ${percent.toFixed(2)}% votes`);
+    }
+  }
+
+  // Create bar chart for barangay percentages
+  function createBarChart(percentages) {
+    const ctx = document.createElement('canvas');
+    ctx.id = 'barangayBarChart';
+    ctx.style.width = '100%';
+    ctx.style.height = '300px';
+
+    const container = document.getElementById('barChartContainer');
+    container.innerHTML = ''; // Clear previous chart if any
+    container.appendChild(ctx);
+
+    const labels = Object.keys(percentages);
+    const data = labels.map(b => percentages[b]);
+
+    // Define colors for bars, default blue, override for Tanong and Sto. Niño and Concepcion Dos
+    const backgroundColors = labels.map(label => {
+      if (label.toLowerCase() === 'tañong') {
+        return '#12c468'; // green
+      } else if (label.toLowerCase() === 'sto. niño' || label.toLowerCase() === 'sto niño') {
+        return '#f44336'; // red
+      } else if (label.toLowerCase() === 'concepcion dos') {
+        return '#f44336'; // red for Concepcion Dos as well
+      } else {
+        return '#0ea5e9'; // default blue
+      }
+    });
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Vote Percentage',
+          data: data,
+          backgroundColor: backgroundColors
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100
+          }
+        }
+      }
+    });
+  }
+
+  // Main function to run the tally, clustering, and visualization
+  function runBarangayAnalysis() {
+    const dataPoints = loadSurveyData();
+    if (dataPoints.length === 0) {
+      console.warn('No survey data points found in localStorage.');
+      return;
+    }
+
+    const percentages = calculateBarangayPercentages(dataPoints);
+    const barangays = Object.keys(barangayCoordinates);
+
+    // Prepare data array for clustering (percentage per barangay in order)
+    const dataForClustering = barangays.map(b => percentages[b] || 0);
+
+    // Run k-means clustering with k=2 (low and high votes)
+    const { assignments } = kMeans1D(dataForClustering, 2);
+
+    // Compute fuzzy logic results for suggestions and common issues per barangay
+    const fuzzyResults = computeFuzzyLogicResults(dataPoints, barangays);
+
+    plotBarangayMarkers(percentages, assignments, barangays, fuzzyResults);
+    createBarChart(percentages);
+  }
+
+  // Show user location with green icon and bind popup with user's answer
+  function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
+
+  const userAnswer = getQueryParam('user_answer') || 'Your answer';
+
+  // Implement goBack and goNext functions for navigation
+  let selectedBarangay = null;
+
+  function goBack() {
+    // For example, go to previous page or history back
+    window.history.back();
+  }
+
+  function goNext() {
+    if (!selectedBarangay) {
+      alert('Please click a location pin marker to select a barangay first.');
+      return;
+    }
+    // Navigate to the new module page with selected barangay as query parameter
+    window.location.href = `map_details.html?barangay=${encodeURIComponent(selectedBarangay)}`;
+  }
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        const userMarker = L.marker([userLat, userLng], { icon: greenIcon }).addTo(map);
+        userMarker.bindPopup('Answer: ' + userAnswer);
+        map.setView([userLat, userLng], 14);
+      },
+      function(error) {
+        console.warn("Geolocation error:", error.message);
+      }
+    );
+  } else {
+    console.warn("Geolocation is not supported by this browser.");
+  }
+
+  // Run the barangay analysis after map initialization
+  runBarangayAnalysis();
+
+  // Fuzzy logic implementation to generate suggestions and common issues per barangay
+  function computeFuzzyLogicResults(dataPoints, barangays) {
+    // This is a simplified example of fuzzy logic:
+    // For each barangay, analyze respondents' answers to find common issues and suggestions
+    // Here, we assume dataPoints have a 'responses' field with issues and suggestions as arrays of strings
+
+    const results = {};
+
+    barangays.forEach(barangay => {
+      const respondents = dataPoints.filter(dp => dp.registration?.address === barangay);
+
+      // Collect all issues and suggestions from respondents
+      let allIssues = [];
+      let allSuggestions = [];
+
+      respondents.forEach(r => {
+        if (r.responses?.issues) {
+          allIssues = allIssues.concat(r.responses.issues);
+        }
+        if (r.responses?.suggestions) {
+          allSuggestions = allSuggestions.concat(r.responses.suggestions);
+        }
+      });
+
+      // Simple frequency count for issues and suggestions
+      const issueCounts = {};
+      allIssues.forEach(issue => {
+        const key = issue.toLowerCase();
+        issueCounts[key] = (issueCounts[key] || 0) + 1;
+      });
+
+      const suggestionCounts = {};
+      allSuggestions.forEach(suggestion => {
+        const key = suggestion.toLowerCase();
+        suggestionCounts[key] = (suggestionCounts[key] || 0) + 1;
+      });
+
+      // Sort by frequency descending
+      const sortedIssues = Object.entries(issueCounts).sort((a, b) => b[1] - a[1]);
+      const sortedSuggestions = Object.entries(suggestionCounts).sort((a, b) => b[1] - a[1]);
+
+      // Take top 3 issues and suggestions as fuzzy logic result
+      results[barangay] = {
+        commonIssues: sortedIssues.slice(0, 3).map(i => i[0]),
+        suggestions: sortedSuggestions.slice(0, 3).map(s => s[0])
+      };
+    });
+
+    return results;
+  }
+
+  // Modify plotBarangayMarkers to include fuzzyResults and bind popup with suggestions and common issues
+  function plotBarangayMarkers(percentages, averageAges, barangays, fuzzyResults) {
+    for (let i = 0; i < barangays.length; i++) {
+      const barangay = barangays[i];
+      const percent = percentages[barangay] || 0;
+      const avgAge = averageAges[i] || 0;
+      const coords = barangayCoordinates[barangay];
+      if (!coords) continue;
+
+      // Determine icon color based on average age, but Tanong is always green
+      let icon;
+      if (barangay.toLowerCase() === 'tañong') {
+        icon = greenIcon; // Tanong always green
+      } else if (avgAge < 25) {
+        icon = redIcon; // younger population - red
+      } else if (avgAge < 40) {
+        icon = new L.Icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+      } else {
+        icon = greenIcon; // older population - green
+      }
+
+      const marker = L.marker([coords.lat, coords.lng], {
+        icon: icon
+      }).addTo(map);
+
+      // Bind popup with barangay name, vote percentage, common issues, and suggestions
+      let popupContent = `<strong>${barangay}</strong><br/>Votes: ${percent.toFixed(2)}%`;
+
+      if (fuzzyResults && fuzzyResults[barangay]) {
+        const issues = fuzzyResults[barangay].commonIssues;
+        const suggestions = fuzzyResults[barangay].suggestions;
+
+        if (issues.length > 0) {
+          popupContent += `<br/><u>Common Issues:</u><ul>${issues.map(i => `<li>${i}</li>`).join('')}</ul>`;
+        }
+        if (suggestions.length > 0) {
+          popupContent += `<br/><u>Suggestions:</u><ul>${suggestions.map(s => `<li>${s}</li>`).join('')}</ul>`;
+        }
+      }
+
+      marker.bindPopup(popupContent);
+
+      // Add click event to marker to select barangay and enable navigation
+      marker.on('click', function() {
+        selectedBarangay = barangay;
+      });
+    }  
+  }
+</script>
+
+
+
+</body>
+</html>

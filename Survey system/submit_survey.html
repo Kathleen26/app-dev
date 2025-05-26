@@ -1,0 +1,102 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thank You Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex flex-col">
+  <div class="h-8 bg-[#2ac1f7] w-full flex justify-end items-center px-6">
+    <div id="dateTime" class="text-white text-sm text-right"></div>
+  </div>
+  <div class="flex-grow bg-gradient-to-b from-[#e9f1f9] to-[#a9c9e8] flex flex-col justify-center items-center px-4 text-center">
+    <h1 class="font-extrabold text-3xl md:text-4xl leading-tight max-w-3xl">THANK YOU FOR YOUR TIME!</h1>
+    <p class="mt-4 text-xs md:text-sm tracking-widest max-w-md">DO YOU HAVE ANY MORE CONCERNS?</p>
+    <button class="mt-6 bg-[#2a8cf7] text-white font-semibold text-sm md:text-base rounded-full px-6 py-2 hover:bg-[#1f6fd1] transition-colors" onclick="window.location.href='concern.html'">CLICK HERE!</button>
+  </div>
+  <script>
+    function updateDateTime() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const dateStr = now.toLocaleDateString(undefined, options);
+      const timeStr = now.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+      document.getElementById('dateTime').innerHTML = dateStr + '<br>' + timeStr;
+    }
+
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    // Utility to get URL parameters as an object
+    function getQueryParams() {
+      const params = {};
+      const queryString = window.location.search.substring(1);
+      const pairs = queryString.split('&');
+      for (const pair of pairs) {
+        if (!pair) continue;
+        const [key, value] = pair.split('=');
+        const decodedKey = decodeURIComponent(key);
+        const decodedValue = decodeURIComponent(value || '');
+        // Handle array parameters like responses[0] or responses[0][]
+        if (decodedKey.endsWith('[]')) {
+          const baseKey = decodedKey.slice(0, -2);
+          if (!params[baseKey]) params[baseKey] = [];
+          params[baseKey].push(decodedValue);
+        } else if (decodedKey.match(/\[\d+\]/)) {
+          // e.g. responses[0]
+          const baseKey = decodedKey.replace(/\[\d+\]/, '');
+          if (!params[baseKey]) params[baseKey] = [];
+          params[baseKey].push(decodedValue);
+        } else {
+          params[decodedKey] = decodedValue;
+        }
+      }
+      return params;
+    }
+
+    // Save survey responses and registration data to localStorage
+    function saveResponses() {
+      const params = getQueryParams();
+      console.log('Query params:', params);
+      const surveyId = params['survey_id'];
+      if (!surveyId) {
+        alert('Survey ID missing in submission.');
+        return;
+      }
+
+      // Extract responses
+      const responses = {};
+      for (const key in params) {
+        if (key.startsWith('responses')) {
+          responses[key] = params[key];
+        }
+      }
+      console.log('Extracted responses:', responses);
+
+      // Retrieve registration data from localStorage
+      const registrationData = JSON.parse(localStorage.getItem('registrationData')) || {};
+      console.log('Registration data:', registrationData);
+
+      // Retrieve existing responses from localStorage
+      const allResponses = JSON.parse(localStorage.getItem('surveyResponses')) || {};
+      if (!allResponses[surveyId]) {
+        allResponses[surveyId] = [];
+      }
+
+      // Save current submission with registration data
+      allResponses[surveyId].push({
+        registration: registrationData,
+        answers: responses,
+        submittedAt: new Date().toISOString()
+      });
+
+      localStorage.setItem('surveyResponses', JSON.stringify(allResponses));
+      console.log('Saved allResponses:', allResponses);
+    }
+
+    // Run on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      saveResponses();
+    });
+  </script>
+</body>
+</html>
