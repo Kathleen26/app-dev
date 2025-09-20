@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SURNALYSIS - Survey Analysis Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(rgba(65, 208, 255, 0.253), rgba(43, 202, 255, 0.349)), url('images/bg1.jpg') no-repeat center center fixed;;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .logo img {
+            width: 200px;
+            height: 60px;
+            margin-right: 15px;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: #E0F6FF;
+        }
+
+        .get-started-btn {
+            background: white;
+            color: #4682B4;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .get-started-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .hero-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #ffffff, #E0F6FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            color: #E0F6FF;
+        }
+
+        .cta-button {
+            background: white;
+            color: #4682B4;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .mockup-container {
+            position: relative;
+            width: 400px;
+            height: 300px;
+        }
+
+        .laptop-mockup {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 15px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .laptop-screen {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 85%;
+            margin: 5% 8%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analytics-dashboard {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-title {
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .stat-number {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 8px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .mini-chart {
+            width: 80%;
+            height: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .phone-mockup {
+            position: absolute;
+            right: -50px;
+            top: -20px;
+            width: 120px;
+            height: 200px;
+            background: #333;
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .phone-chart {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .features-section {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 80px 50px;
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #87CEEB, #4682B4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #4682B4;
+        }
+
+        .feature-description {
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .team-section {
+            background:
+                linear-gradient(rgba(135, 206, 235, 0.8), rgba(70, 130, 180, 0.8)),
+                url('images/bg1.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 50px;
+            text-align: center;
+        }
+
+        .team-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 50px;
+            opacity: 0.9;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .team-member {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px 20px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+
+        .team-avatar {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+        }
+
+        .team-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .team-role {
+            color: #E0F6FF;
+            font-size: 1rem;
+        }
+
+        .footer {
+            background: rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 30px;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .mockup-container {
+                width: 300px;
+                height: 200px;
+                margin-top: 30px;
+            }
+
+            .phone-mockup {
+                position: static;
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="images/LOGO 1.png" alt="SURNALYSIS Logo">
+        </div>
+        <ul class="nav-menu">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#create">Create Survey</a></li>
+            <li><a href="#view">View Survey</a></li>
+            <li><a href="#results">View Result</a></li>
+        </ul>
+        <a href="Login and SignUp.html" class="get-started-btn">Get Started</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="hero-content">
+            <h1 class="hero-title">SURNALYSIS</h1>
+            <p class="hero-description">
+                SURNALYSIS is a website designed for creating and analyzing surveys. It allows users
+                to easily build customized questionnaires, collect responses, and generate clear, visual
+                reports to understand data better and support decision making.
+            </p>
+            <a href="Login and SignUp.html" class="cta-button">GET STARTED</a>
+        </div>
+        <div class="hero-image">
+            <div class="mockup-container">
+                <div class="laptop-mockup">
+                    <div class="laptop-screen">
+                        <div class="analytics-dashboard">
+                            <div class="dashboard-header">
+                                <div class="dashboard-title">Analytics Dashboard</div>
+                                <div class="dashboard-title">Live Stats</div>
+                            </div>
+                            <div class="dashboard-stats">
+                                <div class="stat-card">
+                                    <div class="stat-number">969</div>
+                                    <div class="stat-label">Total Responses</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">61%</div>
+                                    <div class="stat-label">Completion Rate</div>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <div class="mini-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <div class="phone-chart"></div>
+                        <div style="display: flex; gap: 5px;">
+                            <div style="flex: 1; height: 15px; background: rgba(255,255,255,0.3); border-radius: 3px;"></div>
+                            <div style="flex: 1; height: 15px; background: rgba(255,255,255,0.2); border-radius: 3px;"></div>
+                            <div style="flex: 1; height: 15px; background: rgba(255,255,255,0.4); border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="features-container">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Secure & Fast</h3>
+                <p class="feature-description">
+                    Your data is protected with strong security. Experience smooth and
+                    lightning-fast survey performance.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="feature-title">Rich Experience</h3>
+                <p class="feature-description">
+                    Enjoy a modern, user-friendly interface designed for seamless
+                    survey creation and analysis.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+                <h3 class="feature-title">Support</h3>
+                <p class="feature-description">
+                    Need help? Our friendly support team is ready to assist you every
+                    step of the way.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="team-container">
+            <h2 class="section-title">SURNALYSIS</h2>
+            <p class="section-subtitle">
+               SURNALYSIS is a website designed for creating and analyzing surveys. It allows users to easily build customized questionnaires, 
+               collect responses, and generate clear, visual reports to understand data better and support decision making.
+            </p>
+            <h3 style="font-size: 2rem; margin: 50px 0 20px;">Our team, at your service</h3>
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="team-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="team-name">Kath Reloza</div>
+                    <div class="team-role">Programmer</div>
+                </div>
+                <div class="team-member">
+                    <div class="team-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="team-name">Isaiah Atienza</div>
+                    <div class="team-role">Designer</div>
+                </div>
+                <div class="team-member">
+                    <div class="team-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="team-name">Jenica Tamayo</div>
+                    <div class="team-role">Journalist</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 SURNALYSIS. All rights reserved.</p>
+    </footer>
+</body>
+</html>

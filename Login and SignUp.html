@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login and SignUp</title>
+  <script type="module" src="firebaseauth.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(rgba(65, 208, 255, 0.507), rgba(43, 202, 255, 0.555)), url('images/bg2.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .auth-container {
+      background: rgba(118, 196, 235, 0.637);
+      padding: 50px 40px;
+      border-radius: 15px;
+      width: 450px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      color: #000;
+      text-align: center;
+    }
+    .auth-container h1 {
+      margin-bottom: 30px;
+      font-weight: bold;
+      font-size: 2rem;
+      color: black;
+    }
+    .tab-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: white;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+    .tab-btn.active {
+      border-bottom: 2px solid #1e90ff;
+      color: #1e90ff;
+    }
+    .form-container {
+      display: none;
+    }
+    .form-container.active {
+      display: block;
+    }
+    label {
+      display: block;
+      text-align: left;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: black;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .forgot-password {
+      text-align: left;
+      margin-top: -15px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      color: white;
+      cursor: pointer;
+      user-select: none;
+    }
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+    button.login-btn {
+      width: 100%;
+      background-color: #1e90ff;
+      border: none;
+      padding: 12px 0;
+      border-radius: 25px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background-color 0.3s ease;
+    }
+    button.login-btn:hover {
+      background-color: #0f6cd1;
+    }
+    .switch-text {
+      color: white;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    .switch-text a {
+      color: #b55aff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .social-login-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border-radius: 25px;
+      padding: 10px 20px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      width: 100%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease;
+    }
+    .social-login-btn:hover {
+      background-color: #f0f0f0;
+    }
+    .social-login-btn img {
+      height: 20px;
+      width: 20px;
+      margin-right: 15px;
+    }
+    .message {
+      display: none;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      color: white;
+      background-color: rgba(255, 0, 0, 0.8);
+    }
+    #resetContainer {
+      display: none;
+    }
+    #datetime {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 5px 10px;
+      border-radius: 5px;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+  </style>
+</head>
+<body>
+  <div id="datetime"></div>
+  <div class="auth-container" role="main" aria-label="Auth form">
+    <div class="tab-container">
+      <button class="tab-btn active" id="loginTab">Login</button>
+      <button class="tab-btn" id="signupTab">Signup</button>
+    </div>
+    <div id="loginForm" class="form-container active">
+      <h1>LOGIN</h1>
+      <form id="signInContainer">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required />
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required />
+        <div class="forgot-password" id="showReset" tabindex="0">Forgot password?</div>
+        <button type="submit" class="login-btn" id="submitSignIn">LOGIN</button>
+      </form>
+      <div id="signInMessage" class="message"></div>
+      <div class="switch-text">
+        Don’t have an Account? <a href="#" id="switchToSignup">Signup</a>
+      </div>
+      <button class="social-login-btn" id="loginFacebook" aria-label="Login with Facebook">
+        <img src="images/Facebook_Logo_(2019).png" alt="Facebook logo" />
+        LOGIN WITH FACEBOOK
+      </button>
+      <button class="social-login-btn" id="loginGoogle" aria-label="Login with Google">
+        <img src="images/google.png" alt="Google logo" />
+        LOGIN WITH GOOGLE
+      </button>
+    </div>
+    <div id="signupForm" class="form-container">
+      <h1>SIGN UP</h1>
+      <div id="signUpMessage" class="message"></div>
+      <form id="signUpContainer">
+        <label for ="firstname">First Name:</label>
+        <input type="text" id="firstname" name="firstname" placeholder="Enter your first name" required />
+        <label for="lastname">Last Name:</label>
+        <input type="text" id="lastname" name="lastname" placeholder="Enter your last name" required />
+        <label for="signUpEmail">Email:</label>
+        <input type="email" id="signUpEmail" name="signUpEmail" placeholder="Enter your email" required />
+        <label for="signUpPassword">Password:</label>
+        <input type="password" id="signUpPassword" name="signUpPassword" placeholder="Enter your password" required />
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required />
+        <button type="submit" class="login-btn" id="submitSignUp">SIGN UP</button>
+        
+      </form>
+      <div class="switch-text">
+        Already have an account? <a href="#" id="switchToLogin">Login</a>
+      </div>
+    </div>
+    <div id="resetContainer">
+      <h1>Reset Password</h1>
+      <form>
+        <label for="resetEmail">Email:</label>
+        <input type="email" id="resetEmail" name="resetEmail" placeholder="Enter your email" required />
+        <button type="submit" class="login-btn" id="submitReset">Send Reset Email</button>
+      </form>
+      <div id="resetMessage" class="message"></div>
+      <div class="switch-text">
+        <a href="#" id="backToSignIn">Back to Login</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    const loginTab = document.getElementById('loginTab');
+    const signupTab = document.getElementById('signupTab');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const switchToSignup = document.getElementById('switchToSignup');
+    const switchToLogin = document.getElementById('switchToLogin');
+
+    function showLogin() {
+      loginTab.classList.add('active');
+      signupTab.classList.remove('active');
+      loginForm.classList.add('active');
+      signupForm.classList.remove('active');
+    }
+
+    function showSignup() {
+      signupTab.classList.add('active');
+      loginTab.classList.remove('active');
+      signupForm.classList.add('active');
+      loginForm.classList.remove('active');
+    }
+
+    loginTab.addEventListener('click', showLogin);
+    signupTab.addEventListener('click', showSignup);
+    switchToSignup.addEventListener('click', (e) => {
+      e.preventDefault();
+      showSignup();
+    });
+    switchToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      showLogin();
+    });
+
+    function updateDateTime() {
+      const now = new Date();
+      const dateTimeString = now.toLocaleString();
+      document.getElementById('datetime').textContent = dateTimeString;
+    }
+
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+  </script>
+</body>
+</html>

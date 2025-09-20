@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/path/to/your/favicon.ico" type="image/x-icon">
+   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+   <script src="script.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registration</title>
+  <style>
+    /* Full screen background image with overlay */
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background:linear-gradient(rgba(65, 208, 255, 0.507), rgba(43, 202, 255, 0.555)), url('images/bg2.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
+    }
+    /* Form container */
+    .form-container {
+      position: relative;
+      background-color:  rgba(118, 196, 235, 0.637);
+      padding: 40px 50px;
+      border-radius: 15px;
+      width: 600px;
+      box-sizing: border-box;
+      z-index: 1;
+      color: black;
+    }
+    /* Heading */
+    .form-container h1 {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 30px;
+      color: black;
+    }
+    /* Labels */
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: normal;
+      font-size: 16px;
+      color: black;
+    }
+    /* Inputs and selects */
+    input[type="text"], select {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+      background-color: white;
+      color: black;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+    /* Button */
+    button {
+      width: 100%;
+      background-color: #0073b1;
+      color: white;
+      padding: 12px 0;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: normal;
+    }
+    button:hover {
+      background-color: #005f8d;
+    }
+    /* Center the reCAPTCHA */
+    .recaptcha-center {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <form class="form-container" id="registrationForm" action="javascript:void(0);" method="POST">
+    <h1>REGISTRATION</h1>
+    <label for="age">Age:</label>
+    <input id="age" name="age" type="text" placeholder="" />
+    <label for="gender">Gender:</label>
+    <select id="gender" name="gender">
+      <option>Select Gender</option>
+      <option>Male</option>
+      <option>Female</option>
+    </select>
+    <label for="address">Address</label>
+    <select id="address" name="address">
+      <option>Select Address</option>
+      <option>Barangka</option>
+      <option>Calumpang</option>
+      <option>Industrial Valley Complex (IVC)</option>
+      <option>Jesus dela Peña</option>
+      <option>Malanday</option>
+      <option>San Roque</option>
+      <option>Sta. Elena</option>
+      <option>Sto. Niño</option>
+      <option>Tañong</option>
+    </select>
+    <div class="g-recaptcha recaptcha-center" data-sitekey="6LddFs8rAAAAAANLBiytQjNWgqlXb8z-I8g47nRB"></div>
+    <button id ="submit">Register</button>
+  </form>
+
+  <script>
+    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Get form data
+      const formData = new FormData(this);
+      const registrationData = {
+        age: formData.get('age'),
+        gender: formData.get('gender'),
+        address: formData.get('address')
+      };
+
+      // Check if all fields are filled
+      if (!registrationData.age || !registrationData.gender || registrationData.gender === 'Select Gender' ||
+          !registrationData.address || registrationData.address === 'Select Address') {
+        alert('Please fill in all fields before submitting.');
+        return;
+      }
+
+      // Check reCAPTCHA
+      const recaptchaResponse = grecaptcha.getResponse();
+      if (!recaptchaResponse) {
+        alert('Please complete the reCAPTCHA verification.');
+        return;
+      }
+
+      // Store registration data in localStorage
+      localStorage.setItem('registrationData', JSON.stringify(registrationData));
+
+      // Redirect to survey questionnaire
+      window.location.href = 'survey questionnaire.html';
+    });
+
+    // Reset reCAPTCHA when form is reset or page is loaded
+    window.addEventListener('load', function() {
+      if (typeof grecaptcha !== 'undefined') {
+        grecaptcha.reset();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Survey</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background: linear-gradient(rgba(65, 208, 255, 0.507), rgba(43, 202, 255, 0.555)), url('images/bg3.png') no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      backdrop-filter: blur(6px);
+      z-index: -1;
+    }
+    form#surveyForm {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 1.5rem;
+      padding: 2.5rem 3rem;
+      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.3);
+      max-width: 1400px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: relative;
+    }
+    #logoHeader {
+      font-family: 'Great Vibes', cursive;
+      font-size: 3rem;
+      color: white;
+      text-align: center;
+      margin: 0 0 2rem 0;
+      user-select: none;
+      text-shadow: 0 0 8px rgba(0,0,0,0.3);
+      width: 100%;
+      position: relative;
+      top: -1.5rem;
+    }
+    .survey-label {
+      font-weight: 700;
+      font-size: 1.125rem;
+      margin-bottom: 0.25rem;
+      color: #1e293b; /* slate-800 */
+    }
+    .survey-text {
+      font-weight: 400;
+      font-size: 1rem;
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: #334155; /* slate-700 */
+    }
+    fieldset {
+      border: none;
+      padding: 0;
+      margin-bottom: 2rem;
+    }
+    legend {
+      font-weight: 700;
+      font-size: 1.125rem;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      color: #1e293b; /* slate-800 */
+    }
+    fieldset p {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: #334155; /* slate-700 */
+    }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      border: 1px solid #cbd5e1; /* slate-300 */
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      resize: none;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease;
+    }
+    textarea:focus {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3);
+    }
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-left: 1.5rem;
+    }
+    label.option-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #334155; /* slate-700 */
+      user-select: none;
+    }
+    input[type="checkbox"],
+    input[type="radio"] {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      accent-color: #0ea5e9;
+      flex-shrink: 0;
+    }
+    /* Rating circles */
+    .rating-container {
+      display: flex;
+      gap: 1.5rem;
+      margin-left: 1.5rem;
+    }
+    .rating-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .rating-label input[type="radio"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 36px;
+      height: 36px;
+      border: 2px solid #0ea5e9;
+      border-radius: 50%;
+      margin-bottom: 0.25rem;
+      position: relative;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .rating-label input[type="radio"]:checked {
+      background-color: #0ea5e9;
+      border-color: #0ea5e9;
+    }
+    .rating-label span {
+      font-size: 0.875rem;
+      color: #334155;
+    }
+    /* Submit button */
+    button[type="submit"] {
+      align-self: flex-end;
+      background-color: #0ea5e9;
+      color: white;
+      padding: 0.75rem 2.5rem;
+      border-radius: 9999px;
+      font-size: 1.125rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+      margin-top: 1rem;
+    }
+    button[type="submit"]:hover {
+      background-color: #0c87cc;
+    }
+  </style>
+</head>
+<body>
+  <main class="flex justify-center items-start min-h-screen p-6 flex-col items-center">
+    <div id="logoHeader" class="mb-6">
+      <img src="images/LOGO 2.png" alt="Surnalysis Logo" style="max-width: 400px; height: auto; display: block; margin: 0 auto;" />
+    </div>
+    <form id="surveyForm" method="GET" action="submit_survey.html" novalidate>
+      <label class="survey-label" for="surveyTitle">Survey Title:</label>
+      <p id="surveyTitle" class="survey-text">Loading survey...</p>
+
+      <label class="survey-label" for="surveyDescription">Survey Description:</label>
+      <p id="surveyDescription" class="survey-text"></p>
+
+      <input type="hidden" id="surveyId" name="survey_id" value="" />
+      <input type="hidden" id="locationLat" name="location_lat" value="" />
+      <input type="hidden" id="locationLng" name="location_lng" value="" />
+
+      <div id="questionsContainer"></div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </main>
+
+<script>
+  // Utility to get URL parameter
+  function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
+
+  // Load survey data from localStorage by id
+  function loadSurvey(surveyId) {
+    const surveys = JSON.parse(localStorage.getItem('surveys')) || [];
+    return surveys.find(s => s.id.toString() === surveyId);
+  }
+
+  // Render survey form dynamically
+  function renderSurvey(survey) {
+    if (!survey) {
+      document.getElementById('surveyTitle').textContent = 'Survey not found.';
+      document.getElementById('surveyDescription').textContent = '';
+      document.getElementById('questionsContainer').innerHTML = '<p class="text-red-600 font-semibold">No survey data available to display.</p>';
+      return;
+    }
+
+    document.getElementById('surveyTitle').textContent = survey.title;
+    document.getElementById('surveyDescription').textContent = survey.description;
+    document.getElementById('surveyId').value = survey.id;
+
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+
+    if (!survey.questions || survey.questions.length === 0) {
+      container.innerHTML = '<p class="text-red-600 font-semibold">No questions available for this survey.</p>';
+      return;
+    }
+
+    survey.questions.forEach((question, index) => {
+      const fieldset = document.createElement('fieldset');
+
+      const legend = document.createElement('legend');
+      legend.textContent = `Question ${index + 1}:`;
+      fieldset.appendChild(legend);
+
+      const p = document.createElement('p');
+      p.textContent = question.text;
+      fieldset.appendChild(p);
+
+      if (question.type === 'text') {
+        const textarea = document.createElement('textarea');
+        textarea.name = `responses[${index}]`;
+        textarea.rows = 4;
+        textarea.required = true;
+        fieldset.appendChild(textarea);
+
+      } else if (question.type === 'multipleChoice') {
+        if (question.options && question.options.length > 0) {
+          const optionsContainer = document.createElement('div');
+          optionsContainer.className = 'options-container';
+
+          question.options.forEach(option => {
+            const label = document.createElement('label');
+            label.className = 'option-label';
+
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.name = `responses[${index}][]`;
+            input.value = option;
+
+            const span = document.createElement('span');
+            span.textContent = option;
+
+            label.appendChild(input);
+            label.appendChild(span);
+            optionsContainer.appendChild(label);
+          });
+          fieldset.appendChild(optionsContainer);
+        }
+
+      } else if (question.type === 'radio') {
+        if (question.options && question.options.length > 0) {
+          const optionsContainer = document.createElement('div');
+          optionsContainer.className = 'options-container';
+
+          question.options.forEach(option => {
+            const label = document.createElement('label');
+            label.className = 'option-label';
+
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = `responses[${index}]`;
+            input.value = option;
+            input.required = true;
+
+            const span = document.createElement('span');
+            span.textContent = option;
+
+            label.appendChild(input);
+            label.appendChild(span);
+            optionsContainer.appendChild(label);
+          });
+          fieldset.appendChild(optionsContainer);
+        }
+
+      } else if (question.type === 'rating') {
+        const div = document.createElement('div');
+        div.className = 'rating-container';
+
+        for (let i = 1; i <= 5; i++) {
+          const label = document.createElement('label');
+          label.className = 'rating-label';
+
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = `responses[${index}]`;
+          input.value = i;
+          input.required = true;
+
+          const span = document.createElement('span');
+          span.textContent = i;
+
+          label.appendChild(input);
+          label.appendChild(span);
+          div.appendChild(label);
+        }
+        fieldset.appendChild(div);
+      }
+
+      container.appendChild(fieldset);
+    });
+  }
+
+  // Before form submit, get geolocation and set hidden inputs
+  document.getElementById('surveyForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      document.getElementById('locationLat').value = position.coords.latitude;
+      document.getElementById('locationLng').value = position.coords.longitude;
+
+      // Collect registration data from localStorage
+      const registrationData = JSON.parse(localStorage.getItem('registrationData')) || {};
+
+      // Collect survey responses
+      const formData = new FormData(event.target);
+      const responses = {};
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith('responses')) {
+          if (responses[key]) {
+            if (Array.isArray(responses[key])) {
+              responses[key].push(value);
+            } else {
+              responses[key] = [responses[key], value];
+            }
+          } else {
+            responses[key] = value;
+          }
+        }
+      }
+
+      // Example fuzzy validation: check if any rating is low (<=2) and alert user
+      let hasLowRating = false;
+      for (const key in responses) {
+        const val = responses[key];
+        let rating = null;
+        if (Array.isArray(val)) {
+          rating = parseInt(val[0]);
+        } else {
+          rating = parseInt(val);
+        }
+        if (!isNaN(rating) && rating <= 2) {
+          hasLowRating = true;
+          break;
+        }
+      }
+      if (hasLowRating) {
+        if (!confirm('Some of your ratings are low. Are you sure you want to submit?')) {
+          return;
+        }
+      }
+
+      // Combine registration data and responses into one data point
+      const dataPoint = {
+        registration: registrationData,
+        responses: responses,
+        location: {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        },
+        timestamp: Date.now()
+      };
+
+      // Retrieve existing survey data points from localStorage
+      const surveyDataPoints = JSON.parse(localStorage.getItem('surveyDataPoints')) || [];
+      surveyDataPoints.push(dataPoint);
+      localStorage.setItem('surveyDataPoints', JSON.stringify(surveyDataPoints));
+
+      // Now submit the form
+      event.target.submit();
+    }, () => {
+      alert('Unable to retrieve your location. Please allow location access and try again.');
+    });
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    let surveyId = getQueryParam('survey_id');
+    if (!surveyId) {
+      // If no survey_id in URL, load first survey id from localStorage
+      const surveys = JSON.parse(localStorage.getItem('surveys')) || [];
+      if (surveys.length > 0) {
+        surveyId = surveys[0].id.toString();
+      }
+    }
+    const survey = loadSurvey(surveyId);
+    renderSurvey(survey);
+  });
+</script>
+</body>
+</html>

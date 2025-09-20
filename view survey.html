@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Survey List</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background: url('images/bg3.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+    }
+    .overlay {
+      background-color: rgba(135, 206, 250, 0.6); /* light blue overlay */
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .logo {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.5rem;
+      color: white;
+      user-select: none;
+      padding-left: 1rem;
+      letter-spacing: 0.1em;
+    }
+    nav a {
+      color: white;
+      margin-left: 1.5rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    nav a:hover {
+      color: #dbeafe; /* lighter blue on hover */
+    }
+    table thead {
+      background-color: #add8e6; /* light blue */
+    }
+    input[type="text"].paragraph-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      margin-top: 0.25rem;
+    }
+    button {
+      border-radius: 9999px;
+      padding: 0.4rem 1rem;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      filter: brightness(90%);
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <header class="flex justify-between items-center py-4 px-6">
+      <div class="logo select-none">
+        <img src="images/LOGO 2.png" alt="Surnalysis Logo" class="h-24 object-contain" />
+      </div>
+      <nav class="flex items-center">
+        <a href="Homepage.html">Home</a>
+        <a href="Homepage.html">About</a>
+        <a href="create survey.html">Create Survey</a>
+        <a href="view survey.html">View Survey</a>
+        <a href="view result.html">View Result</a>
+      </nav>
+    </header>
+    <main class="flex-grow px-6 pb-6">
+      <div class="flex flex-wrap items-center justify-center space-x-6 mb-4">
+        <input type="text" id="searchInput" placeholder="Search" class="flex-grow max-w-xl rounded-full px-4 py-2" />
+        <button id="searchButton" class="bg-white text-black rounded-full px-4 py-2 border border-black">Search</button>
+        <button id="clearButton" class="bg-white text-black rounded-full px-4 py-2 border border-black">Clear</button>
+        <button id="toggleSurveysButton" class="bg-white text-black rounded-full px-4 py-2 border border-black mx-auto">Show Archived surveys</button>
+        <div class="flex-grow"></div>
+        <button id="backButton" class="bg-white text-black rounded-full px-4 py-2 border border-black">Back</button>
+        <button id="createButton" class="bg-blue-300 text-white rounded-full px-4 py-2 hover:bg-blue-400 transition">Create</button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse border border-black min-w-[600px]">
+          <thead>
+            <tr>
+              <th class="border border-black px-4 py-2 font-bold">ID</th>
+              <th class="border border-black px-4 py-2 font-bold">TITLE</th>
+              <th class="border border-black px-4 py-2 font-bold">DESCRIPTION</th>
+              <th class="border border-black px-4 py-2 font-bold">CREATED DATE</th>
+              <th class="border border-black px-4 py-2 font-bold">ACTIONS</th>
+            </tr>
+          </thead>
+        <tbody id="surveyTableBody" class="bg-white">
+            <!-- Survey rows will be dynamically inserted here -->
+          </tbody>
+        </table>
+      </div>
+      <!-- Removed the Questions and options section as requested -->
+    </main>
+  </div>
+  <script>
+    let allSurveys = [];
+    let showArchived = false;
+
+    // Load surveys from localStorage
+    function loadSurveys() {
+      const surveys = JSON.parse(localStorage.getItem('surveys')) || [];
+      allSurveys = surveys;
+      displaySurveys(surveys);
+    }
+
+      // Display surveys in the table
+      function displaySurveys(surveys) {
+        const tbody = document.getElementById('surveyTableBody');
+        tbody.innerHTML = '';
+
+        surveys.forEach(survey => {
+          const row = document.createElement('tr');
+          row.className = 'border border-black';
+
+          const createdDate = new Date(survey.createdAt).toLocaleDateString();
+
+          let actionsHtml = `
+            <div class="flex justify-center items-center space-x-2">
+              <button onclick="editSurvey(${survey.id})" class="text-purple-600">Edit</button>
+              <button onclick="publishSurvey(${survey.id})" class="bg-blue-300 text-white px-3 py-1 rounded-full hover:bg-blue-400 transition">${survey.published ? 'Unpublish' : 'Publish'}</button>
+              <button onclick="archiveSurvey(${survey.id})" class="bg-blue-300 text-white px-3 py-1 rounded-full hover:bg-blue-400 transition">Archive</button>
+              <button onclick="deleteSurvey(${survey.id})" class="bg-blue-300 text-white px-3 py-1 rounded-full hover:bg-blue-400 transition">Delete</button>
+              <button onclick="toggleQuestionnaire(${survey.id})" id="toggleBtn-${survey.id}" class="bg-blue-300 text-black px-3 py-1 rounded-full hover:bg-blue-400 transition">Show Questionnaire</button>
+          `;
+          // Removed Take Survey button as per request
+          // if (survey.published) {
+          //   actionsHtml += `<a href="survey questionnaire.html?id=${survey.id}" class="bg-green-500 text-white px-3 py-1 rounded-full hover:bg-green-600 transition">Take Survey</a>`;
+          // }
+          actionsHtml += `</div>`;
+
+          row.innerHTML = `
+            <td class="border border-black px-4 py-2">${survey.id}</td>
+            <td class="border border-black px-4 py-2">${survey.title}</td>
+            <td class="border border-black px-4 py-2">${survey.description}</td>
+            <td class="border border-black px-4 py-2">${createdDate}</td>
+            <td class="border border-black px-4 py-2">${actionsHtml}</td>
+          `;
+
+          tbody.appendChild(row);
+
+          // Add a hidden row for questionnaire details
+          const questionRow = document.createElement('tr');
+          questionRow.id = `questionRow-${survey.id}`;
+          questionRow.style.display = 'none';
+          questionRow.innerHTML = `
+            <td colspan="5" class="border border-black px-4 py-2 bg-gray-100">
+              <div id="questionnaire-${survey.id}">
+                <!-- Questionnaire details will be inserted here -->
+              </div>
+            </td>
+          `;
+          tbody.appendChild(questionRow);
+        });
+      }
+
+      // Toggle questionnaire view
+      function toggleQuestionnaire(surveyId) {
+        const questionRow = document.getElementById(`questionRow-${surveyId}`);
+        const toggleBtn = document.getElementById(`toggleBtn-${surveyId}`);
+
+        if (questionRow.style.display === 'none') {
+          // Show questionnaire
+          questionRow.style.display = '';
+          toggleBtn.textContent = 'Hide Questionnaire';
+          displayQuestionnaire(surveyId);
+        } else {
+          // Hide questionnaire
+          questionRow.style.display = 'none';
+          toggleBtn.textContent = 'Show Questionnaire';
+        }
+      }
+
+      // Display questionnaire details
+      function displayQuestionnaire(surveyId) {
+        const survey = allSurveys.find(s => s.id === surveyId);
+        const container = document.getElementById(`questionnaire-${surveyId}`);
+
+        if (!survey || !survey.questions || survey.questions.length === 0) {
+          container.innerHTML = '<em>No questionnaire data available.</em>';
+          return;
+        }
+
+        console.log('Survey questions structure:', survey.questions);
+
+        let html = '';
+        survey.questions.forEach((q, index) => {
+          const questionNumber = index + 1;
+          const questionText = q.text || q.question || q.title || 'undefined';
+          const questionType = q.type || q.questionType || 'Unknown';
+
+          html += `
+            <fieldset class="bg-gray-50 border border-gray-200 rounded-md p-4 mb-4">
+              <legend class="font-semibold mb-2 text-base sm:text-lg">
+                <span>Question ${questionNumber}:</span>
+              </legend>
+              <div class="flex flex-col sm:flex-row sm:items-center mb-4 gap-2">
+                <input type="text" value="${questionText}" disabled class="border border-gray-300 rounded px-2 py-1 flex-grow w-full sm:w-auto bg-gray-100 cursor-not-allowed" />
+              </div>
+              <div class="mt-4">
+                <label class="block mb-2 font-semibold text-base sm:text-lg">Question Type:</label>
+                <select disabled class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 cursor-not-allowed">
+                  <option value="text" ${questionType === 'text' ? 'selected' : ''}>Text Question (Optional only)</option>
+                  <option value="multipleChoice" ${questionType === 'multipleChoice' ? 'selected' : ''}>Multiple Choice</option>
+                  <option value="radio" ${questionType === 'radio' ? 'selected' : ''}>Radio Button Choices</option>
+                  <option value="rating" ${questionType === 'rating' ? 'selected' : ''}>Rating Question</option>
+                </select>
+              </div>
+              <div class="mt-4">
+          `;
+
+          if (q.options && q.options.length > 0) {
+            html += '<label class="block mb-2 font-semibold text-base sm:text-lg">Options:</label>';
+            q.options.forEach(opt => {
+              html += `<input type="text" value="${opt}" disabled class="border border-gray-300 rounded px-2 py-1 mb-2 w-full bg-gray-100 cursor-not-allowed" />`;
+            });
+          }
+
+          html += `
+              </div>
+            </fieldset>
+          `;
+        });
+
+        container.innerHTML = html;
+      }
+
+    // View survey (placeholder)
+    function viewSurvey(id) {
+      alert(`Viewing survey with ID: ${id}`);
+      // Could redirect to a take survey page, but for now alert
+    }
+
+    // Edit survey
+    function editSurvey(id) {
+      window.location.href = 'create survey.html?edit=' + id;
+    }
+
+    // Delete survey
+    function deleteSurvey(id) {
+      if (confirm('Are you sure you want to delete this survey?')) {
+        let surveys = JSON.parse(localStorage.getItem('surveys')) || [];
+        surveys = surveys.filter(s => s.id !== id);
+        localStorage.setItem('surveys', JSON.stringify(surveys));
+        loadSurveys();
+      }
+    }
+
+    // Archive survey (placeholder, add archived field)
+    function archiveSurvey(id) {
+      if (!confirm('Are you sure you want to archive this survey?')) {
+        return;
+      }
+      let surveys = JSON.parse(localStorage.getItem('surveys')) || [];
+      const survey = surveys.find(s => s.id === id);
+      if (survey) {
+        survey.archived = !survey.archived;
+        localStorage.setItem('surveys', JSON.stringify(surveys));
+        loadSurveys();
+      }
+    }
+
+    // Search functionality
+    document.getElementById('searchButton').addEventListener('click', function() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allSurveys.filter(survey =>
+        survey.title.toLowerCase().includes(query) ||
+        survey.description.toLowerCase().includes(query)
+      );
+      displaySurveys(filtered);
+    });
+
+    // Clear search
+    document.getElementById('clearButton').addEventListener('click', function() {
+      document.getElementById('searchInput').value = '';
+      displaySurveys(allSurveys);
+    });
+
+    // Toggle archived surveys
+    document.getElementById('toggleSurveysButton').addEventListener('click', function() {
+      showArchived = !showArchived;
+      this.textContent = showArchived ? 'Hide Archived surveys' : 'Show Archived surveys';
+      const filtered = showArchived ? allSurveys : allSurveys.filter(s => !s.archived);
+      displaySurveys(filtered);
+    });
+
+    // Back button
+    document.getElementById('backButton').addEventListener('click', function() {
+      history.back();
+    });
+
+    // Create button
+    document.getElementById('createButton').addEventListener('click', function() {
+      window.location.href = 'create survey.html';
+    });
+
+    // Load surveys on page load
+    window.addEventListener('load', loadSurveys);
+    // Publish/Unpublish survey
+    function publishSurvey(id) {
+      let surveys = JSON.parse(localStorage.getItem('surveys')) || [];
+      const survey = surveys.find(s => s.id === id);
+      if (survey) {
+        survey.published = !survey.published;
+        localStorage.setItem('surveys', JSON.stringify(surveys));
+        const action = survey.published ? 'published' : 'unpublished';
+        alert(`Survey with ID: ${id} ${action} successfully!`);
+        loadSurveys(); // Reload to update display
+      } else {
+        alert('Survey not found.');
+      }
+    }
+  </script>
+</body>
+</html>
